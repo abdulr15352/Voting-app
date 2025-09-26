@@ -18,4 +18,4 @@ def login_user(user: UserLoginSchema):
     """
     Endpoint to log in a user.
     """
-    return {"message": USER_LOGGED_IN, "status": status.HTTP_200_OK}
+    return {"message": ResponseMessages.USER_LOGGED_IN, "status": status.HTTP_200_OK}
