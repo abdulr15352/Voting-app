@@ -3,6 +3,7 @@ class Endpoints:
     HEALTH = "/health"
     REGISTER = "/register"
     LOGIN = "/login"
+    UserInfo = "/info"
 
 
 class ResponseMessages:
@@ -13,3 +14,5 @@ class ResponseMessages:
     USER_ALREADY_EXISTS = "User with this email already exists"
     USER_NOT_FOUND = "User not found"
     INVALID_CREDENTIALS = "Invalid email or password"
+    INVALID_TOKEN_MISSING_EMAIL = "Invalid token: email missing"
+    INVALID_TOKEN = "Invalid token"

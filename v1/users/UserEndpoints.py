@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Request, Depends
+from fastapi.security import OAuth2PasswordBearer
 from utils.constants import Endpoints, ResponseMessages
 from utils.security import hash_password, verify_password, create_access_token, decode_access_token
 from .UserSchemas import UserSchema, UserLoginSchema
@@ -45,3 +46,13 @@ def login_user(user: UserLoginSchema):
         "email": existing_user.email}
     token = create_access_token(data=payload)
     return {"message": ResponseMessages.USER_LOGGED_IN, "token": token, "authentication_type" :"Bearer"}
+
+
+
+
+@UserRouter.get(Endpoints.UserInfo)
+def get_user_info(payload = Depends(decode_access_token)):
+    """
+    Endpoint to get user information.
+    """
+    return payload
