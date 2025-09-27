@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException
 from utils.constants import Endpoints, ResponseMessages
-from utils.security import hash_password, verify_password
+from utils.security import hash_password, verify_password, create_access_token, decode_access_token
 from .UserSchemas import UserSchema, UserLoginSchema
 from v1.users.UserDBModels import UserDBModel, get_user_by_email, add_user
 
@@ -24,6 +24,8 @@ def create_user(user: UserSchema):
     ))
     return {"message": ResponseMessages.USER_CREATED, "status": status.HTTP_201_CREATED}
 
+
+
 @UserRouter.get(Endpoints.LOGIN)
 def login_user(user: UserLoginSchema):
     """
@@ -32,9 +34,14 @@ def login_user(user: UserLoginSchema):
     # validate user
     existing_user = get_user_by_email(user.email)
     if not existing_user:
-        raise HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail=ResponseMessages.USER_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ResponseMessages.USER_NOT_FOUND)
     
     # verify password
     if not verify_password(user.password, existing_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=ResponseMessages.INVALID_CREDENTIALS)
-    return {"message": ResponseMessages.USER_LOGGED_IN, "token": "fake-jwt","authentication_type" :"Bearer"}
+    # Generate JWT token
+    payload = {
+        "user_id": existing_user.id,
+        "email": existing_user.email}
+    token = create_access_token(data=payload)
+    return {"message": ResponseMessages.USER_LOGGED_IN, "token": token, "authentication_type" :"Bearer"}
