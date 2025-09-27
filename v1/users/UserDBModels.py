@@ -33,3 +33,9 @@ def add_user(user: UserDBModel):
     user.id = get_next_user_id()
     UsersDB[user.id] = user
     return user
+
+def delete_user_by_id(user_id: int):
+    """
+    Delete a user from the database by their ID.
+    """
+    return UsersDB.pop(user_id, None)

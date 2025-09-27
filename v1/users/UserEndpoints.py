@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from utils.constants import Endpoints, ResponseMessages
 from utils.security import hash_password, verify_password, create_access_token, decode_access_token
 from .UserSchemas import UserSchema, UserLoginSchema
-from v1.users.UserDBModels import UserDBModel, get_user_by_email, add_user
+from v1.users.UserDBModels import UserDBModel, get_user_by_email, add_user, delete_user_by_id
 
 UserRouter = APIRouter(prefix="/users", tags=["Users"])
 
@@ -56,3 +56,14 @@ def get_user_info(payload = Depends(decode_access_token)):
     Endpoint to get user information.
     """
     return payload
+
+@UserRouter.delete(Endpoints.DELETE)
+def delete_user(payload = Depends(decode_access_token)):
+    """
+    Endpoint to delete a user.
+    """
+    user_id = payload.get("user_id")
+    deleted_user = delete_user_by_id(user_id)
+    if not deleted_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ResponseMessages.USER_NOT_FOUND)
+    return {"message": ResponseMessages.USER_DELETED, "status": status.HTTP_200_OK}

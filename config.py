@@ -8,7 +8,7 @@ load_dotenv(".env")  # Load environment variables from a .env file if present
 class Settings(BaseSettings):
     JWT_SECRET_KEY: SecretStr 
     JWT_ALGORITHM: str 
-    JWT_EXPIRATION_MINUTES: int = 60  # 1 hour
+    JWT_EXPIRATION_MINUTES: int 
 
 
     class Config:

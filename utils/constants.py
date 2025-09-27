@@ -4,6 +4,7 @@ class Endpoints:
     REGISTER = "/register"
     LOGIN = "/login"
     UserInfo = "/info"
+    DELETE = "/delete"
 
 
 class ResponseMessages:
@@ -16,3 +17,6 @@ class ResponseMessages:
     INVALID_CREDENTIALS = "Invalid email or password"
     INVALID_TOKEN_MISSING_EMAIL = "Invalid token: email missing"
     INVALID_TOKEN = "Invalid token"
+    EXPIRED_TOKEN = "Token has expired"
+    USER_DELETED = "User deleted successfully"
+    

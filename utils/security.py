@@ -1,11 +1,12 @@
 from passlib.context import CryptContext
 from pydantic import SecretStr
-from jose import JWTError, jwt
+from jose import JWTError, jwt, ExpiredSignatureError
 from config import Settings
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException
 from utils.constants import Endpoints, ResponseMessages
 from v1.users.UserDBModels import get_user_by_email
+from datetime import datetime, timedelta, timezone
 
 settings = Settings()
 
@@ -22,8 +23,10 @@ def verify_password(plain_password: SecretStr, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password.get_secret_value(), hashed_password)
 
 def create_access_token(data: dict) -> str:
-    encoded_jwt = jwt.encode(data, settings.JWT_SECRET_KEY.get_secret_value(), algorithm=settings.JWT_ALGORITHM)
-    print("Encoded JWT:", encoded_jwt)  # Debugging line to print the token
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRATION_MINUTES)
+    to_encode.update({"exp": int(expire.timestamp())})
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY.get_secret_value(), algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=Endpoints.LOGIN)
@@ -31,15 +34,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=Endpoints.LOGIN)
 def decode_access_token(token: str = Depends(oauth2_scheme)) -> dict:
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY.get_secret_value(), algorithms=[settings.JWT_ALGORITHM])
-        
-
         email = payload.get("email")
         if email is None:
-            raise JWTError(status_code=401, detail=ResponseMessages.INVALID_TOKEN_MISSING_EMAIL)
-        
+            raise HTTPException(status_code=401, detail=ResponseMessages.INVALID_TOKEN_MISSING_EMAIL)
         user = get_user_by_email(payload['email'])
         if user is None:
-            raise JWTError(status_code=401, detail=ResponseMessages.USER_NOT_FOUND)
+            raise HTTPException(status_code=401, detail=ResponseMessages.USER_NOT_FOUND)
         return payload
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail=ResponseMessages.EXPIRED_TOKEN)
     except JWTError as e:
         raise HTTPException(status_code=401, detail=ResponseMessages.INVALID_TOKEN) 
