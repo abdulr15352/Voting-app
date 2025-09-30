@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     JWT_EXPIRATION_MINUTES: int
     POSTGRES_USER: str
     POSTGRES_PASSWORD: SecretStr
-    POSTGRES_DB: str 
+    POSTGRES_DB: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int 
 
 
     class Config:
