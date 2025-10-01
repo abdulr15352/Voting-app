@@ -3,27 +3,33 @@ from fastapi.security import OAuth2PasswordBearer
 from utils.constants import Endpoints, ResponseMessages
 from utils.security import hash_password, verify_password, create_access_token, decode_access_token
 from .UserSchemas import UserSchema, UserLoginSchema
-from v1.users.UserDBModels import UserDBModel, get_user_by_email, add_user, delete_user_by_id
+from db.DbConfig import get_db
+from db.DBModels import UserDBModel
+from sqlalchemy.orm import Session
+
 
 UserRouter = APIRouter(prefix="/users", tags=["Users"])
 
 @UserRouter.post(Endpoints.REGISTER, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserSchema):
+def create_user(user: UserSchema, db=Depends(get_db)):
     """
     Endpoint to create a new user.
     """
     # validate user 
-    existing_user = get_user_by_email(user.email)
+    existing_user = db.query(UserDBModel).filter(UserDBModel.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ResponseMessages.USER_ALREADY_EXISTS)
     # add user to the database
-    new_user = add_user(UserDBModel(
-        name=user.name,
-        email=user.email,
-        hashed_password=hash_password(user.password),  # Hash the password before storing
-        is_active=user.is_active
-    ))
-    return {"message": ResponseMessages.USER_CREATED, "status": status.HTTP_201_CREATED}
+    hashed_password = hash_password(user.password)
+    new_user = UserDBModel(**user.model_dump(exclude={"password"}), hashed_password=hashed_password)
+    try:
+        db.add(new_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    db.refresh(new_user)
+    return new_user
 
 
 

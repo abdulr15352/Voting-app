@@ -5,7 +5,6 @@ from config import Settings
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException
 from utils.constants import Endpoints, ResponseMessages
-from v1.users.UserDBModels import get_user_by_email
 from datetime import datetime, timedelta, timezone
 
 settings = Settings()
