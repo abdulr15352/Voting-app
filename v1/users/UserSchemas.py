@@ -5,9 +5,23 @@ class UserSchema(BaseModel):
     name: str
     email: EmailStr
     password: SecretStr
-    hashed_password: Optional[str] = None
+    # hashed_password: Optional[str] = None
     is_active: bool = True
+
+
+class UserRegisterResponseSchema(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    is_active: bool
 
 class UserLoginSchema(BaseModel):
     email: EmailStr
     password: SecretStr
+
+class CandidateSchema(BaseModel):
+    name: str
+    party: Optional[str] = "Independent" # Default party is Independent
+
+class VotingSchema(BaseModel):
+    candidate_id: int

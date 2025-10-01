@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from utils.constants import Endpoints, ResponseMessages
 import uvicorn
-from v1.users.UserEndpoints import UserRouter
+from v1.users.UserEndpoints import UserRouter, AdminRouter
 from logger import get_logger
 
 logger = get_logger()
@@ -17,6 +17,7 @@ voting_app = FastAPI(
 
 
 voting_app.include_router(UserRouter)
+voting_app.include_router(AdminRouter)
 logger.info("User router has been included.")
 
 @voting_app.get(Endpoints.ROOT)

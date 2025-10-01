@@ -5,6 +5,8 @@ class Endpoints:
     LOGIN = "/login"
     UserInfo = "/info"
     DELETE = "/delete"
+    ADD_CANDIDATE = "/candidate"
+    VOTE = "/vote" 
 
 
 class ResponseMessages:

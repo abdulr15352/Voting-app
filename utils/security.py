@@ -6,6 +6,9 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException
 from utils.constants import Endpoints, ResponseMessages
 from datetime import datetime, timedelta, timezone
+from db.DbConfig import get_db
+from db.DBModels import UserDBModel
+from sqlalchemy.orm import Session
 
 settings = Settings()
 
@@ -30,17 +33,17 @@ def create_access_token(data: dict) -> str:
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=Endpoints.LOGIN)
 
-def decode_access_token(token: str = Depends(oauth2_scheme)) -> dict:
+def decode_access_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> dict:
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY.get_secret_value(), algorithms=[settings.JWT_ALGORITHM])
         email = payload.get("email")
         if email is None:
             raise HTTPException(status_code=401, detail=ResponseMessages.INVALID_TOKEN_MISSING_EMAIL)
-        user = get_user_by_email(payload['email'])
-        if user is None:
+        user = db.query(UserDBModel).filter(UserDBModel.email == email).first()
+        if user is None or not user.is_active:
             raise HTTPException(status_code=401, detail=ResponseMessages.USER_NOT_FOUND)
         return payload
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail=ResponseMessages.EXPIRED_TOKEN)
     except JWTError as e:
-        raise HTTPException(status_code=401, detail=ResponseMessages.INVALID_TOKEN) 
+        raise HTTPException(status_code=401, detail=ResponseMessages.INVALID_TOKEN)
