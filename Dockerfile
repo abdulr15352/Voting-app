@@ -10,7 +10,6 @@ COPY . .
 
 EXPOSE 8000
 
-# CMD ["uvicorn", "main:voting_app", "--host", "0.0.0.0", "--port", "8000", "--reload"] already in docker compose file
-# Run the application in development mode with auto-reload
-
+# 
+CMD sh -c "uvicorn main:voting_app --host 0.0.0.0 --port ${PORT}"
 
