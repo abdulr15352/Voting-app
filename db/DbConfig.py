@@ -14,9 +14,10 @@ Engine = create_engine(
     get_db_url(),
 )
 
+Base = declarative_base()
 SessionLocal = sessionmaker(bind=Engine)
 
-Base = declarative_base()
+
 
 print("Database connected Successfully")
 

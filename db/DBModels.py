@@ -41,8 +41,8 @@ class VoteDBModel(Base):
     __tablename__ = TableNames.VOTES
 
     id = Column(ColumnNames.ID, Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(ColumnNames.USER_ID, Integer, ForeignKey(f"{TableNames.USERS}.{ColumnNames.ID}"), nullable=False)
-    candidate_id = Column(ColumnNames.CANDIDATE_ID, Integer, ForeignKey(f"{TableNames.CANDIDATES}.{ColumnNames.ID}"), nullable=False)
+    user_id = Column(ColumnNames.USER_ID, Integer, ForeignKey(f"{TableNames.USERS}.{ColumnNames.ID}", ondelete="SET NULL"), nullable=True)
+    candidate_id = Column(ColumnNames.CANDIDATE_ID, Integer, ForeignKey(f"{TableNames.CANDIDATES}.{ColumnNames.ID}", ondelete="RESTRICT"), nullable=False)
     created_at = Column(ColumnNames.CREATED_AT, TIMESTAMP(True), default=func.now(), nullable=False)
 
 Base.metadata.create_all(bind=Engine)
