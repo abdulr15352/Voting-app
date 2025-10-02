@@ -22,7 +22,7 @@ docker compose run
 
 docker compose down
 
-- If you also want to empty the databases 
+- If you also want to empty the databases: 
 
 docker compose down -v 
 
