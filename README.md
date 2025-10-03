@@ -16,7 +16,7 @@ docker compose build
 
 - To run the app with Docker run the command:
 
-docker compose run
+docker compose up
 
 - To stop the app from using Docker run the command:
 
